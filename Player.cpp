@@ -104,8 +104,6 @@ void Player::makeShooting()
       this->current_bullet = -1;
     rockets[current_bullet].rocketMoving(this->x + 2, this->y);
     this->current_bullet++;
-    this->score += 5;
-    this->scoreOnLevel += 5;
     if (this->scoreOnLevel == this->maxScoreOnLevel)
     {
       this->level++;

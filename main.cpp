@@ -73,9 +73,9 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool
   int j = 0;
   while (i < enemy.group[0].count)
   {
-    if (enemy.group[i].x > 3)
+    if (enemy.group[i].x > 3 && !enemy.group[i].if_died)
       gameWindow.PutChar(enemy.group[i].symb | A_BOLD, enemy.group[i].y, enemy.group[i].x);
-    if (enemy.group[i].rockets[0].x > 3)
+    if (enemy.group[i].rockets[0].x > 3 && !enemy.group[i].if_died && !enemy.group[i].rockets[0].if_died)
       gameWindow.PutChar(enemy.group[i].rockets[0].symb | A_BOLD, enemy.group[i].rockets[0].y, enemy.group[i].rockets[0].x);
     else
     {
@@ -160,23 +160,45 @@ int	main(void)
         gameWindow.Clear();
         gameWindow.DrawBox('*' | A_BOLD, '*' | A_BOLD);
         gameWindow.drawField();
-        
+
         init_pair(3, COLOR_GREEN, COLOR_BLACK);
         wattron(gameWindow.getWindow(), COLOR_PAIR(3));
         gameWindow.PutChar(player.symb | A_BOLD,
                             player.y + Y_SPLIT, player.x + X_SPLIT);
         wattroff(gameWindow.getWindow(), COLOR_PAIR(3));
-        
+
         init_pair(4, COLOR_RED, COLOR_BLACK);
         wattron(gameWindow.getWindow(), COLOR_PAIR(4));
         enemies_shooting(player, enemy, gameWindow, enemy_render);
         enemy_render = !enemy_render;
         wattroff(gameWindow.getWindow(), COLOR_PAIR(4));
-
+        int j = 0;
+        //int k = 0;
         for (int i = 0; i < player.current_bullet; ++i) {
+
             gameWindow.PutChar(player.rockets[i].symb | A_BOLD,
                                 player.rockets[i].y + Y_SPLIT,
                                 player.rockets[i].x + X_SPLIT);
+            j = 0;
+            while (j < enemies)
+            {
+              if (player.rockets[i].y == enemy.group[j].y && (player.rockets[i].x == enemy.group[j].x
+                || player.rockets[i].x == enemy.group[j].x - 2 || player.rockets[i].x == enemy.group[j].x + 2))
+                {
+                  enemy.group[j + 2].if_died = 1;
+                  player.score += 10;
+                  player.scoreOnLevel += 10;
+                }
+
+                if (player.rockets[i].y == enemy.group[j].rockets[0].y && (player.rockets[i].x == enemy.group[j].rockets[0].x
+                  || player.rockets[i].x == enemy.group[j].rockets[0].x - 2 || player.rockets[i].x == enemy.group[j].rockets[0].x + 2))
+                  {
+                    enemy.group[j + 2].rockets[0].if_died = 1;
+                    player.score += 5;
+                    player.scoreOnLevel += 5;
+                  }
+              j++;
+            }
             player.rockets[i].x += 2;
         }
         init_info_window(&infoWindow);
