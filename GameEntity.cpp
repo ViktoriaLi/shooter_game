@@ -3,6 +3,10 @@
 
 GameEntity::GameEntity()
 {
+  this->symb = 'o';
+  this->x = 1;
+  this->y = 1;
+  this->if_died = 0;
   //std::cout << "GameEntity Default constructor." << std::endl;
 }
 

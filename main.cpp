@@ -87,7 +87,7 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool
         j++;
       }
     }
-    if (player.x == enemy.group[i].rockets[j].x && player.y == enemy.group[i].rockets[j].y)
+    if (player.x == enemy.group[i].rockets[0].x && player.y == enemy.group[i].rockets[0].y)
       player.lives--;
     if (player.lives == 0)
     {
@@ -102,7 +102,7 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool
       gameWindow.PutStr("GAME OVER: ", 29, 25);
       return (0);
     }
-    enemy.group[i].rockets[j].x -= 2;
+    enemy.group[i].rockets[0].x -= 2;
     if (flag)
         enemy.group[i].x -= 2;
     i++;
@@ -185,15 +185,17 @@ int	main(void)
               if (player.rockets[i].y == enemy.group[j].y && (player.rockets[i].x == enemy.group[j].x
                 || player.rockets[i].x == enemy.group[j].x - 2 || player.rockets[i].x == enemy.group[j].x + 2))
                 {
-                  enemy.group[j + 2].if_died = 1;
+                  //if (j + 2 < enemies)
+                  if (j + 2 < enemies)
+                    enemy.group[j + 2].if_died = 1;
                   player.score += 10;
                   player.scoreOnLevel += 10;
                 }
-
-                if (player.rockets[i].y == enemy.group[j].rockets[0].y && (player.rockets[i].x == enemy.group[j].rockets[0].x
-                  || player.rockets[i].x == enemy.group[j].rockets[0].x - 2 || player.rockets[i].x == enemy.group[j].rockets[0].x + 2))
+                if (player.rockets[i].y == enemy.group[j].rockets[0].y &&
+                  (player.rockets[i].x == enemy.group[j].rockets[0].x - 2 ||
+                  player.rockets[i].x == enemy.group[j].rockets[0].x + 2))
                   {
-                    enemy.group[j + 2].rockets[0].if_died = 1;
+                    enemy.group[j].rockets[0].if_died = 1;
                     player.score += 5;
                     player.scoreOnLevel += 5;
                   }

@@ -14,7 +14,6 @@ Enemy::Enemy(std::string ustype) : GameEntity()
 
   this->type = ustype;
   this->if_died = 0;
-  this->numb = 0;
   this->count = 1;
   this->symb = 'X';
   this->lives = 3;
@@ -47,23 +46,13 @@ Enemy::Enemy(int n, std::string ustype) : GameEntity()
 	while (i < n)
   {
     group[i].if_died = 0;
-    group[i].numb = i;
-    group[i].numb = 0;
     group[i].count = n;
     group[i].type = ustype;
     group[i].symb = 'X';
     group[i].lives = 1;
     group[i].x = x;
-    /*if ((i % 2) == 0)
-    {
-      group[i].y = y0;
-      y0 += 2;
-    }
-    else
-    {*/
-      group[i].y = y1;
-      y1 += 2;
-    //}
+    group[i].y = y1;
+    y1 += 2;
     this->bullets = 100 / n;
     this->current_bullet = 0;
     group[i].rockets = new GameEntity[bullets];
@@ -104,7 +93,6 @@ Enemy & Enemy::operator=(Enemy const & over)
     this->y = over.y;
     this->bullets = over.bullets;
     this->current_bullet = over.current_bullet;
-    this->numb = over.numb;
     this->if_died = over.if_died;
   }
   return (*this);
