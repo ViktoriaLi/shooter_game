@@ -33,10 +33,10 @@ void fill_coords(Enemy &enemy)
   int i = 0;
   int j = 0;
 
-  while (i < enemy.count)
+  while (i < enemy.group[0].count)
   {
     j = 0;
-    while (j < enemy.count)
+    while (j < enemy.group[0].count)
     {
       enemy.group[i].rockets[j].rocketMoving(enemy.group[i].x, enemy.group[i].y);
       j++;
@@ -49,7 +49,7 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow)
 {
   int i = 0;
   int j = 0;
-  while (i < 6)
+  while (i < enemy.group[0].count)
   {
     if (enemy.group[i].x > 3)
       gameWindow.PutChar(enemy.group[i].symb | A_BOLD, enemy.group[i].y, enemy.group[i].x);
@@ -58,7 +58,7 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow)
     else
     {
       j = 0;
-      while (j < 6)
+      while (j < enemy.group[0].count)
       {
         enemy.group[j].rockets[0].x = enemy.group[j].x;
         enemy.group[j].rockets[0].y = enemy.group[j].y;
@@ -89,14 +89,16 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow)
 
 int	main(void)
 {
-	initscr();
+    std::srand(time(NULL));
+    int enemies = 1 + rand() % 12;
+	  initscr();
     FieldWindow gameWindow = FieldWindow(32, 60);
     curs_set(0);
     start_color();
     noecho();
     Player player("nemesis");
     player.name = "nemesis";
-    Enemy enemy(6, "zork");
+    Enemy enemy(enemies, "zork");
 
     fill_coords(enemy);
     Window infoWindow = Window(15, 40, 17, 61);
