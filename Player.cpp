@@ -102,7 +102,7 @@ void Player::makeShooting()
     this->bullets--;
     if (this->current_bullet == 100)
       this->current_bullet = -1;
-    rockets[current_bullet].rocketMoving(this->x, this->y);
+    rockets[current_bullet].rocketMoving(this->x + 2, this->y);
     this->current_bullet++;
     this->score += 5;
     this->scoreOnLevel += 5;

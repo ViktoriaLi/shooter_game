@@ -25,7 +25,7 @@ Enemy::Enemy(std::string ustype) : GameEntity()
   {
     this->rockets[j].type = "rocket";
     this->rockets[j].symb = 'o';
-    this->rockets[j].x = this->x;
+    this->rockets[j].x = this->x - 2;
     this->rockets[j].y = this->y;
     j++;
   }
@@ -65,7 +65,7 @@ Enemy::Enemy(int n, std::string ustype) : GameEntity()
     {
       group[i].rockets[j].type = "rocket";
       group[i].rockets[j].symb = 'o';
-      group[i].rockets[j].x = group[i].x;
+      group[i].rockets[j].x = group[i].x - 2;
       group[i].rockets[j].y = group[i].y;
       j++;
     }
@@ -105,7 +105,7 @@ void Enemy::makeShooting()
   if (this->bullets > 0)
   {
     this->bullets--;
-    rockets[this->current_bullet].rocketMoving(this->x, this->y);
+    rockets[this->current_bullet].rocketMoving(this->x - 2, this->y);
     this->current_bullet++;
   }
 }
