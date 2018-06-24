@@ -9,7 +9,7 @@ class Player: public GameEntity
 {
   public:
     Player();
-    Player(std::string ustype);
+    Player(std::string ustype, chtype rsymb = '>' | A_BOLD);
     Player(Player const & copy);
     ~Player();
     Player & operator=(Player const & over);
@@ -17,6 +17,7 @@ class Player: public GameEntity
     int score;
     int level;
   //private:
+    bool game_over;
     GameEntity *rockets;
     int scoreOnLevel;
     int maxScoreOnLevel;

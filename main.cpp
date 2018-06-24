@@ -50,6 +50,14 @@ void handle_winch(int sig){
     signal(SIGWINCH, handle_winch);
 }
 
+void  waiting_for_start(FieldWindow *w) {
+  init_pair(5, COLOR_RED, COLOR_BLACK);
+  wattron(w->getWindow(), COLOR_PAIR(5));
+  w->PutStr("Press any key to start", w->getRows() / 3, w->getColumns() / 2);
+  w->GetChar();
+  wattroff(w->getWindow(), COLOR_PAIR(5));
+}
+
 void fill_coords(Enemy &enemy)
 {
   int i = 0;
@@ -60,7 +68,7 @@ void fill_coords(Enemy &enemy)
     j = 0;
     while (j < enemy.group[0].count)
     {
-      enemy.group[i].rockets[j].rocketMoving(enemy.group[i].x - 2, enemy.group[i].y);
+      enemy.group[i].rockets.rocketMoving(enemy.group[i].x - 2, enemy.group[i].y);
       j++;
     }
     i++;
@@ -91,19 +99,19 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool
       fill_coords(enemy);
       enemy.clear();
     }
-    if (enemy.group[i].rockets[0].x > 3 && !enemy.group[i].if_died && !enemy.group[i].rockets[0].if_died)
-      gameWindow.PutChar(enemy.group[i].rockets[0].symb | A_BOLD, enemy.group[i].rockets[0].y, enemy.group[i].rockets[0].x);
+    if (enemy.group[i].rockets.x > 3 && !enemy.group[i].if_died && !enemy.group[i].rockets.if_died)
+      gameWindow.PutChar(enemy.group[i].rockets.symb | A_BOLD, enemy.group[i].rockets.y, enemy.group[i].rockets.x);
     else
     {
       j = 0;
       while (j < enemy.group[0].count)
       {
-        enemy.group[j].rockets[0].x = enemy.group[j].x;
-        enemy.group[j].rockets[0].y = enemy.group[j].y;
+        enemy.group[j].rockets.x = enemy.group[j].x;
+        enemy.group[j].rockets.y = enemy.group[j].y;
         j++;
       }
     }
-    if (player.x == enemy.group[i].rockets[0].x && player.y == enemy.group[i].rockets[0].y)
+    if (player.x == enemy.group[i].rockets.x && player.y == enemy.group[i].rockets.y)
       player.lives--;
     if (player.lives == 0)
     {
@@ -118,7 +126,7 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool
       gameWindow.PutStr("GAME OVER: ", 29, 25);
       return (0);
     }
-    enemy.group[i].rockets[0].x -= 2;
+    enemy.group[i].rockets.x -= 2;
     if (flag)
         enemy.group[i].x -= 2;
     i++;
@@ -128,11 +136,8 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool
 
 int	main(void)
 {
-
-    /*int enemies = 1 + rand() % 12;
-    Enemy enemy(enemies, "zork");
-    fill_coords(enemy);*/
-	initscr();
+    std::srand(time(NULL));
+    initscr();
     curs_set(0);
     start_color();
     noecho();
@@ -146,45 +151,44 @@ int	main(void)
     clear();
     refresh();
     FieldWindow gameWindow = FieldWindow(32, 60);
+    waiting_for_start(&gameWindow);
     Player player("nemesis");
     player.name = "nemesis";
-    /*
-    Enemy enemy(enemies, "zork");
-    fill_coords(enemy);
-*/
     Window infoWindow = Window(11, 40, 21, 61);
     Window statWindow = Window(20, 40, 0, 61);
-    keypad(stdscr, true);
-   // int x, y;
-    halfdelay(8);
     player.current_bullet = 0;
-    std::srand(time(NULL));
+    
     int enemies = 3 + rand() % 10;
     int copy_en = enemies;
-    Enemy enemy(12, "zork");
+    Enemy enemy(12);
     fill_coords(enemy);
-    //enemies_shooting(player, enemy, gameWindow, false);
     bool enemy_render = true;
+    nodelay(gameWindow.getWindow(), true);
+    raw();
+    player.game_over = false;
     while (true) {
-        int key = gameWindow.GetChar();
-        player.move(key);
-        if (key == 32) {
+        if (player.lives <= 0)
+          player.game_over = true;
+        while (!player.game_over){
+          usleep(7 * MICROSECONDS_BY_FRAME);
+          int key = gameWindow.GetChar();
+        if (key == KEY_SPACE) {
             player.makeShooting();
         }
-        /*else if (key == KEY_EXIT)
-            exit(0);*/
-        //getmaxyx(stdscr, y, x);
-        //gameWindow.Resize(y - 5, x - 5);
+        else if (key == KEY_ESC) {
+          endwin();
+          return 0;
+        }
         gameWindow.Clear();
         gameWindow.DrawBox('*' | A_BOLD, '*' | A_BOLD);
         gameWindow.drawField();
-
+        
         init_pair(3, COLOR_GREEN, COLOR_BLACK);
         wattron(gameWindow.getWindow(), COLOR_PAIR(3));
         gameWindow.PutChar(player.symb | A_BOLD,
                             player.y + Y_SPLIT, player.x + X_SPLIT);
         wattroff(gameWindow.getWindow(), COLOR_PAIR(3));
-
+        
         init_pair(4, COLOR_RED, COLOR_BLACK);
         wattron(gameWindow.getWindow(), COLOR_PAIR(4));
         int j = 0;
@@ -197,7 +201,8 @@ int	main(void)
         enemies_shooting(player, enemy, gameWindow, enemy_render, &copy_en);
         enemy_render = !enemy_render;
         wattroff(gameWindow.getWindow(), COLOR_PAIR(4));
-        j = 0;
+
+         j = 0;
         for (int i = 0; i < player.current_bullet; ++i) {
 
             gameWindow.PutChar(player.rockets[i].symb | A_BOLD,
@@ -230,11 +235,11 @@ int	main(void)
                   }
 
                 }
-                if (player.rockets[i].y == enemy.group[j].rockets[0].y &&
-                  (player.rockets[i].x == enemy.group[j].rockets[0].x - 2 ||
-                  player.rockets[i].x == enemy.group[j].rockets[0].x + 2))
+                if (player.rockets[i].y == enemy.group[j].rockets.y &&
+                  (player.rockets[i].x == enemy.group[j].rockets.x - 2 ||
+                  player.rockets[i].x == enemy.group[j].rockets.x + 2))
                   {
-                    enemy.group[j].rockets[0].if_died = 1;
+                    enemy.group[j].rockets.if_died = 1;
                     player.score += 5;
                     player.scoreOnLevel += 5;
                   }
@@ -242,9 +247,11 @@ int	main(void)
             }
             player.rockets[i].x += 2;
         }
+        player.move(key);
         init_info_window(&infoWindow);
         init_stat_window(&statWindow, &player);
         gameWindow.Refresh();
+    }
     }
     endwin();
     return 0;
