@@ -67,7 +67,7 @@ void fill_coords(Enemy &enemy)
   }
 }
 
-int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool flag)
+int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool flag, int *enemies)
 {
   int i = 0;
   int j = 0;
@@ -75,6 +75,8 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool
   {
     if (enemy.group[i].x > 3 && !enemy.group[i].if_died)
       gameWindow.PutChar(enemy.group[i].symb | A_BOLD, enemy.group[i].y, enemy.group[i].x);
+    else
+      (*enemies)--;
     if (enemy.group[i].rockets[0].x > 3 && !enemy.group[i].if_died && !enemy.group[i].rockets[0].if_died)
       gameWindow.PutChar(enemy.group[i].rockets[0].symb | A_BOLD, enemy.group[i].rockets[0].y, enemy.group[i].rockets[0].x);
     else
@@ -112,7 +114,7 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool
 
 int	main(void)
 {
-    std::srand(time(NULL));
+
     /*int enemies = 1 + rand() % 12;
     Enemy enemy(enemies, "zork");
     fill_coords(enemy);*/
@@ -142,8 +144,10 @@ int	main(void)
    // int x, y;
     halfdelay(8);
     player.current_bullet = 0;
-    int enemies = 1 + rand() % 12;
-    Enemy enemy(enemies, "zork");
+    std::srand(time(NULL));
+    int enemies = 3 + rand() % 10;
+    int copy_en = enemies;
+    Enemy enemy(12, "zork");
     fill_coords(enemy);
     //enemies_shooting(player, enemy, gameWindow, false);
     bool enemy_render = true;
@@ -169,11 +173,17 @@ int	main(void)
 
         init_pair(4, COLOR_RED, COLOR_BLACK);
         wattron(gameWindow.getWindow(), COLOR_PAIR(4));
-        enemies_shooting(player, enemy, gameWindow, enemy_render);
+        int j = 0;
+        while (j < 12)
+        {
+          enemy.group[j].count = enemies;
+          j++;
+        }
+        int k = 0;
+        enemies_shooting(player, enemy, gameWindow, enemy_render, &copy_en);
         enemy_render = !enemy_render;
         wattroff(gameWindow.getWindow(), COLOR_PAIR(4));
-        int j = 0;
-        //int k = 0;
+        j = 0;
         for (int i = 0; i < player.current_bullet; ++i) {
 
             gameWindow.PutChar(player.rockets[i].symb | A_BOLD,
@@ -185,11 +195,26 @@ int	main(void)
               if (player.rockets[i].y == enemy.group[j].y && (player.rockets[i].x == enemy.group[j].x
                 || player.rockets[i].x == enemy.group[j].x - 2 || player.rockets[i].x == enemy.group[j].x + 2))
                 {
-                  //if (j + 2 < enemies)
                   if (j + 2 < enemies)
                     enemy.group[j + 2].if_died = 1;
                   player.score += 10;
                   player.scoreOnLevel += 10;
+                  copy_en--;
+                  if (copy_en <= 0)
+                  {
+                    std::srand(time(NULL));
+                    enemies = 3 + rand() % 10;
+                    copy_en = enemies;
+                    k = 0;
+                    while (k < 12)
+                    {
+                      enemy.group[k].count = enemies;
+                      k++;
+                    }
+                    fill_coords(enemy);
+                    enemy.clear();
+                  }
+
                 }
                 if (player.rockets[i].y == enemy.group[j].rockets[0].y &&
                   (player.rockets[i].x == enemy.group[j].rockets[0].x - 2 ||
