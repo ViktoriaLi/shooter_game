@@ -21,7 +21,6 @@ class Enemy: public GameEntity
     int current_bullet;
     int lives;
     void makeShooting();
-    //void clear();
 };
 
 #endif

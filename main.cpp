@@ -4,12 +4,14 @@
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include <unistd.h>
+#include <sys/ioctl.h>
 
 void    init_info_window(Window *w) {
     w->PutStr("Game Info", 1, 15);
-    w->PutStr("Controls: LEFT UP RIGHT DOWN arrows" , 3, 2);
-    w->PutStr("to move and SPACE to shoot.", 4, 2);
-    w->PutStr("Press ESC to exit", 5, 2);
+    w->PutStr("Controls: W - UP, D - RIGHT, ", 3, 2);
+    w->PutStr("S - DOWN, A - LEFT to move", 4, 12);
+    w->PutStr("and SPACE to shoot.", 5, 12);
+    w->PutStr("Press ESC to exit", 6, 12);
     w->DrawBox('*' | A_BOLD, '*' | A_BOLD);
     w->Refresh();
 }
@@ -24,8 +26,26 @@ void    init_stat_window(Window *w, Player *player) {
     w->PutChar((player->lives + '0') | A_BOLD | A_STANDOUT, 7, 15);
     w->PutStr("Score: ", 9, 2);
     mvwprintw(w->getWindow(), 9, 15, "%d", player->score);
+    w->PutStr("Rockets: ", 11, 2);
+    mvwprintw(w->getWindow(), 11, 15, "%d", player->bullets);
     w->DrawBox('*' | A_BOLD, '*' | A_BOLD);
     w->Refresh();
+}
+
+void handle_winch(int sig){
+    printf("%d\n", sig);
+    signal(SIGWINCH, SIG_IGN);
+    endwin();
+    initscr();
+    refresh();
+    clear();
+    char tmp[128];
+    sprintf(tmp, "Too small! %dx%d", COLS, LINES);
+    int x = COLS / 2 - strlen(tmp) / 2;
+    int y = LINES / 2 - 1;
+    mvaddstr(y, x, tmp);
+    refresh();
+    signal(SIGWINCH, handle_winch);
 }
 
 void fill_coords(Enemy &enemy)
@@ -92,35 +112,57 @@ int	main(void)
     std::srand(time(NULL));
     int enemies = 1 + rand() % 12;
 	  initscr();
-    FieldWindow gameWindow = FieldWindow(32, 60);
     curs_set(0);
     start_color();
     noecho();
+    signal(SIGWINCH, handle_winch);
+    while(true){
+        struct winsize w;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+        if (w.ws_row >= RETRO_HEIGHT && w.ws_col >= RETRO_WIDTH)
+            break ;
+    }
+    clear();
+    refresh();
+    FieldWindow gameWindow = FieldWindow(32, 60);
     Player player("nemesis");
     player.name = "nemesis";
     Enemy enemy(enemies, "zork");
-
     fill_coords(enemy);
-    Window infoWindow = Window(15, 40, 17, 61);
+    Window infoWindow = Window(11, 40, 21, 61);
     init_info_window(&infoWindow);
-    Window statWindow = Window(16, 40, 0, 61);
+    Window statWindow = Window(20, 40, 0, 61);
+    keypad(stdscr, true);
+   // int x, y;
 
+    player.current_bullet = -1;
     while (true) {
-        init_stat_window(&statWindow, &player);
         halfdelay(2);
-        gameWindow.GetChar();
+        init_stat_window(&statWindow, &player);
+        int key = gameWindow.GetChar();
+        player.move(key);
+        if (key == 32) {
+            player.makeShooting();
+        }
         gameWindow.Clear();
         gameWindow.DrawBox('*' | A_BOLD, '*' | A_BOLD);
         gameWindow.drawField();
-        gameWindow.PutChar(player.symb | A_BLINK, player.y, player.x);
-        enemies_shooting(player, enemy, gameWindow);
-        /*if (!enemies_shooting(player, enemy, gameWindow))
-        {
-          player("nemesis");
-          enemy(6, "zork");
-          fill_coords(player, enemy);
-        }*/
 
+        init_pair(3, COLOR_GREEN, COLOR_BLACK);
+        wattron(gameWindow.getWindow(), COLOR_PAIR(3));
+        gameWindow.PutChar(player.symb | A_BOLD,
+                            player.y + Y_SPLIT, player.x + X_SPLIT);
+        wattroff(gameWindow.getWindow(), COLOR_PAIR(3));
+        init_pair(4, COLOR_RED, COLOR_BLACK);
+        wattron(gameWindow.getWindow(), COLOR_PAIR(4));
+        wattroff(gameWindow.getWindow(), COLOR_PAIR(4));
+        enemies_shooting(player, enemy, gameWindow);
+        for (int i = 0; i <= player.current_bullet; ++i) {
+            gameWindow.PutChar(player.rockets[i].symb | A_BOLD,
+                                player.rockets[i].y + Y_SPLIT,
+                                player.rockets[i].x + X_SPLIT);
+            player.rockets[i].x += 2;
+        }
         gameWindow.Refresh();
     }
     endwin();

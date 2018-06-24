@@ -16,7 +16,7 @@ Player::Player() : GameEntity()
   this->bullets = 100;
   this->x = 4;
   this->y = 14;
-  this->current_bullet = 0;
+  this->current_bullet = -1;
 
   this->rockets = new GameEntity[bullets];
   int j = 0;
@@ -24,7 +24,7 @@ Player::Player() : GameEntity()
   {
     this->rockets[j].type = "rocket";
     this->rockets[j].symb = 'o';
-    this->rockets[j].x = this->x;
+    this->rockets[j].x = this->x + 2;
     this->rockets[j].y = this->y;
     j++;
   }
@@ -45,7 +45,7 @@ Player::Player(std::string ustype) : GameEntity(ustype)
   this->bullets = 100;
   this->x = 4;
   this->y = 14;
-  this->current_bullet = 0;
+  this->current_bullet = -1;
 
   this->rockets = new GameEntity[bullets];
   int j = 0;
@@ -53,7 +53,7 @@ Player::Player(std::string ustype) : GameEntity(ustype)
   {
     this->rockets[j].type = "rocket";
     this->rockets[j].symb = 'o';
-    this->rockets[j].x = this->x;
+    this->rockets[j].x = this->x + 2;
     this->rockets[j].y = this->y;
     j++;
   }
@@ -101,7 +101,7 @@ void Player::makeShooting()
   {
     this->bullets--;
     if (this->current_bullet == 100)
-      this->current_bullet = 0;
+      this->current_bullet = -1;
     rockets[current_bullet].rocketMoving(this->x, this->y);
     this->current_bullet++;
     this->score += 5;
@@ -129,11 +129,11 @@ void Player::makeShooting()
     this->bullets = 100;
     this->x = 0;
     this->y = 0;
-    this->current_bullet = 0;
+    this->current_bullet = -1;
     j = 0;
     while (j < bullets)
     {
-      this->rockets[j].x = this->x;
+      this->rockets[j].x = this->x + 2;
       this->rockets[j].y = this->y;
       j++;
     }
@@ -146,17 +146,28 @@ void Player::makeShooting()
     this->maxScoreOnLevel = 100;
     this->level = 0;
     this->lives = 5;
-    this->symb = 'U';
+    this->symb = '#';
     this->bullets = 100;
     this->x = 4;
     this->y = 14;
-    this->current_bullet = 0;
+    this->current_bullet = -1;
     j = 0;
     while (j < bullets)
     {
-      this->rockets[j].x = this->x;
+      this->rockets[j].x = this->x + 2;
       this->rockets[j].y = this->y;
       j++;
     }
   }
+}
+
+void Player::move(int key) {
+  if (key == KEY_W)
+    y -= (y != 0) ? 2 : 0;
+  else if (key == KEY_S)
+    y += (y != FIELD_HEIGHT - 2) ? 2 : 0;
+  else if (key == KEY_D)
+    x += (x != FIELD_WIDTH - 2) ? 2 : 0;
+  else if (key == KEY_A)
+    x -= (x != 0) ? 2 : 0;
 }

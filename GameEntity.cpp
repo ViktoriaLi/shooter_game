@@ -42,7 +42,7 @@ GameEntity & GameEntity::operator=(GameEntity const & over)
 
 void GameEntity::rocketMoving(int x1, int y1)
 {
-  this->x = x1;
+  this->x = x1 + 2;
   this->y = y1;
 }
 
