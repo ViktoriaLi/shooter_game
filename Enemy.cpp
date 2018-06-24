@@ -17,8 +17,8 @@ Enemy::Enemy(std::string ustype) : GameEntity()
   this->count = 1;
   this->symb = 'X';
   this->lives = 3;
-  this->x = 54;
-  this->y = 4;
+  this->x = 4 + rand() % 22;
+  this->y = 0 + rand() % 12;
   this->bullets = 100;
   this->current_bullet = 0;
   this->rockets = new GameEntity[bullets];
@@ -37,10 +37,10 @@ Enemy::Enemy(int n, std::string ustype) : GameEntity()
   int i = 0;
   int j = 0;
   //std::cout << ustype << "Enemy Name constructor" << std::endl;
-  int x = 54;
+  //int x = 54;
   //int y0 = 16;
-  int y0 = 16;
-  int y1 = 14;
+  //int y0 = 16;
+  //int y1 = 14;
 	group = new Enemy[n];
 	while (i < n)
   {
@@ -49,17 +49,22 @@ Enemy::Enemy(int n, std::string ustype) : GameEntity()
     group[i].type = ustype;
     group[i].symb = 'X';
     group[i].lives = 1;
-    group[i].x = x;
-    if ((i % 2) == 0)
+    std::srand(i);
+    group[i].x = 10 + rand() % 17;
+    group[i].x += i;
+    std::srand(i);
+    group[i].y = rand() % 12;
+    group[i].y += i;
+    /*if ((i % 2) == 0)
     {
       group[i].y = y0;
       y0 += 2;
-    }
-    else
+    }*/
+    /*selse
     {
       group[i].y = y1;
       y1 -= 2;
-    }
+    }*/
     this->bullets = 100 / n;
     this->current_bullet = 0;
     group[i].rockets = new GameEntity[bullets];
@@ -119,16 +124,20 @@ void Enemy::clear()
 {
   int i = 0;
   int j = 0;
-  int x = 54;
-  int y1 = 4;
+  //int x = 54;
+  //int y1 = 4;
   while (i < group[0].count)
   {
     group[i].if_died = 0;
     group[i].symb = 'X';
     group[i].lives = 1;
-    group[i].x = x;
-    group[i].y = y1;
-    y1 += 2;
+    std::srand(i);
+    group[i].x = 10 + rand() % 17;
+    group[i].x += i;
+    std::srand(i);
+    group[i].y = rand() % 12;
+    group[i].y += i;
+    //y1 += 2;
     this->bullets = 100 / group[0].count;
     this->current_bullet = 0;
     group[i].rockets = new GameEntity[bullets];

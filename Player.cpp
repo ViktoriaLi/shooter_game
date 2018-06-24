@@ -14,8 +14,8 @@ Player::Player() : GameEntity()
   this->type = "user";
   this->name = "Player 1";
   this->bullets = 100;
-  this->x = 4;
-  this->y = 14;
+  this->x = 0;
+  this->y = 10;
   this->current_bullet = -1;
 
   this->rockets = new GameEntity[bullets];
@@ -43,8 +43,8 @@ Player::Player(std::string ustype) : GameEntity(ustype)
   this->lives = 5;
   this->symb = '#';
   this->bullets = 100;
-  this->x = 4;
-  this->y = 14;
+  this->x = 0;
+  this->y = 10;
   this->current_bullet = -1;
 
   this->rockets = new GameEntity[bullets];
@@ -126,7 +126,7 @@ void Player::makeShooting()
     this->symb = '#';
     this->bullets = 100;
     this->x = 0;
-    this->y = 0;
+    this->y = 10;
     this->current_bullet = -1;
     j = 0;
     while (j < bullets)
@@ -146,8 +146,8 @@ void Player::makeShooting()
     this->lives = 5;
     this->symb = '#';
     this->bullets = 100;
-    this->x = 4;
-    this->y = 14;
+    this->x = 0;
+    this->y = 10;
     this->current_bullet = -1;
     j = 0;
     while (j < bullets)

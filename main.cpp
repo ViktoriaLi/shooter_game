@@ -71,12 +71,26 @@ int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow, bool
 {
   int i = 0;
   int j = 0;
+  int k = 0;
   while (i < enemy.group[0].count)
   {
     if (enemy.group[i].x > 3 && !enemy.group[i].if_died)
       gameWindow.PutChar(enemy.group[i].symb | A_BOLD, enemy.group[i].y, enemy.group[i].x);
     else
       (*enemies)--;
+    if (*enemies <= 0)
+    {
+      std::srand(time(NULL));
+      *enemies = 3 + rand() % 10;
+      k = 0;
+      while (k < 12)
+      {
+      enemy.group[k].count = *enemies;
+        k++;
+      }
+      fill_coords(enemy);
+      enemy.clear();
+    }
     if (enemy.group[i].rockets[0].x > 3 && !enemy.group[i].if_died && !enemy.group[i].rockets[0].if_died)
       gameWindow.PutChar(enemy.group[i].rockets[0].symb | A_BOLD, enemy.group[i].rockets[0].y, enemy.group[i].rockets[0].x);
     else
