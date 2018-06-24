@@ -1,21 +1,36 @@
-NAME = ft_retro
+NAME	=	ft_retro
 
-SFILES = main.cpp Player.cpp User.cpp
+SRCS	=	main.cpp		\
+			Window.cpp		\
+			FieldWindow.cpp	\
+			Enemy.cpp		\
+			GameEntity.cpp	\
+			Player.cpp
+			
+FLAGS	=	-Wall -Werror -Wextra -g
+CC		=	clang++
+RM		=	rm -rf
 
-OFILES = main.o Player.o User.o
+OBJ		=	$(SRCS:.cpp=.o)
 
-all: $(NAME)
+all:		$(NAME)
 
-$(NAME): $(OFILES)
-	clang++ $(OFILES) -o $(NAME)
+$(NAME):	$(OBJ)
+			@$(CC) $(FLAGS) $(OBJ) -o $(NAME) -lncurses
+			@echo "Compiling" [ $(NAME) ]
 
-$(OFILES):%.o:%.cpp
-	clang++ -Wall -Wextra -Werror -c $(SFILES) -o $(OFILES)
+%.o:		%.cpp
+			@$(CC) -o $@ -c $< $(FLAGS)
+			@echo "Linking" [ $< ]
 
 clean:
-	rm -f $(OFILES)
+			@$(RM) $(OBJ)
+			@echo "Cleaning" [ $(OBJ) ]
 
-fclean: clean
-	rm -f $(NAME)
+fclean:		clean
+			@$(RM) $(NAME)
+			@echo "Cleaning" [ $(NAME) ]
 
-re: fclean all
+re:			fclean all
+
+.PHONY:		re fclean clean all

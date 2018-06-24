@@ -16,6 +16,7 @@ class GameEntity
     int y;
     char symb;
     void rocketMoving(int x1, int y1);
+    //virtual void clear();
 };
 
 #endif

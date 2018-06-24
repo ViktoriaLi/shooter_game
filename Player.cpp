@@ -10,12 +10,12 @@ Player::Player() : GameEntity()
   this->maxScoreOnLevel = 100;
   this->level = 0;
   this->lives = 5;
-  this->symb = 'U';
+  this->symb = '#';
   this->type = "user";
   this->name = "Player 1";
   this->bullets = 100;
-  this->x = 0;
-  this->y = 0;
+  this->x = 4;
+  this->y = 14;
   this->current_bullet = 0;
 
   this->rockets = new GameEntity[bullets];
@@ -32,19 +32,19 @@ Player::Player() : GameEntity()
   std::cin >> name;
 }
 
-Player::Player(std::string ustype) : GameEntity()
+Player::Player(std::string ustype) : GameEntity(ustype)
 {
-  std::cout << "Game started!" << std::endl;
+  //std::cout << "Game started!" << std::endl;
   this->type = ustype;
   this->score = 0;
   this->scoreOnLevel = 0;
   this->maxScoreOnLevel = 100;
   this->level = 0;
   this->lives = 5;
-  this->symb = 'U';
+  this->symb = '#';
   this->bullets = 100;
-  this->x = 0;
-  this->y = 0;
+  this->x = 4;
+  this->y = 14;
   this->current_bullet = 0;
 
   this->rockets = new GameEntity[bullets];
@@ -57,8 +57,8 @@ Player::Player(std::string ustype) : GameEntity()
     this->rockets[j].y = this->y;
     j++;
   }
-  std::cout << "Enter your name, please..." << std::endl;
-  std::cin >> name;
+  //std::cout << "Enter your name, please..." << std::endl;
+  //std::cin >> name;
 }
 
 Player::Player(Player const & copy) : GameEntity()
@@ -125,7 +125,7 @@ void Player::makeShooting()
     this->maxScoreOnLevel = 100;
     this->level = 0;
     this->lives = 5;
-    this->symb = 'U';
+    this->symb = '#';
     this->bullets = 100;
     this->x = 0;
     this->y = 0;
@@ -148,8 +148,8 @@ void Player::makeShooting()
     this->lives = 5;
     this->symb = 'U';
     this->bullets = 100;
-    this->x = 0;
-    this->y = 0;
+    this->x = 4;
+    this->y = 14;
     this->current_bullet = 0;
     j = 0;
     while (j < bullets)

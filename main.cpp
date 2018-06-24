@@ -1,76 +1,126 @@
-#include <iostream>
-#include "GameEntity.hpp"
+#include "ft_retro.h"
+#include "Window.hpp"
+#include "FieldWindow.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include <unistd.h>
 
-int main(void)
+void    init_info_window(Window *w) {
+    w->PutStr("Game Info", 1, 15);
+    w->PutStr("Controls: LEFT UP RIGHT DOWN arrows" , 3, 2);
+    w->PutStr("to move and SPACE to shoot.", 4, 2);
+    w->PutStr("Press ESC to exit", 5, 2);
+    w->DrawBox('*' | A_BOLD, '*' | A_BOLD);
+    w->Refresh();
+}
+
+void    init_stat_window(Window *w, Player *player) {
+    w->PutStr("Game Stats", 1, 15);
+    w->PutStr("Player name: ", 3, 2);
+    w->PutStr(player->name, 3, 15);
+    w->PutStr("Level: ", 5, 2);
+    w->PutChar((player->level + '0') | A_BOLD | A_STANDOUT, 5, 15);
+    w->PutStr("Lives: ", 7, 2);
+    w->PutChar((player->lives + '0') | A_BOLD | A_STANDOUT, 7, 15);
+    w->PutStr("Score: ", 9, 2);
+    mvwprintw(w->getWindow(), 9, 15, "%d", player->score);
+    w->DrawBox('*' | A_BOLD, '*' | A_BOLD);
+    w->Refresh();
+}
+
+void fill_coords(Enemy &enemy)
 {
-  int maxLevel = 0;
-  int maxScore = 0;
-
-  Player User("user");
-  Enemy Enemi("enemy");
-  Enemy Enemies(3, "enemy");
-
-  std::cout << "Your max level is " << maxLevel << std::endl;
-  std::cout << "Your max score is " << maxScore << std::endl;
-  /*
   int i = 0;
-  std::cout << User.score << ' ' << User.scoreOnLevel << ' ' << User.maxScoreOnLevel
-  << ' ' << User.level << ' ' << User.lives << ' ' << User.symb << ' '  << User.type
-  << ' ' << User.name << ' ' << User.current_bullet << ' ' << User.bullets << ' '
-  << User.x << ' ' << User.y << ' ' << std::endl;
-  while (i < 100)
-  {
-    User.makeShooting();
-    std::cout << User.score << ' ' << User.scoreOnLevel << ' ' << User.maxScoreOnLevel
-    << ' ' << User.level << ' ' << User.lives << ' ' << User.symb << ' '  << User.type
-    << ' ' << User.name << ' ' << User.current_bullet << ' ' << User.bullets << ' '
-    << User.x << ' ' << User.y << ' ' << User.rockets->x << User.rockets->y << std::endl;
-
-    i++;
-  }
-  if (User.level > maxLevel)
-    maxLevel = User.level;
-  if (User.score > maxScore)
-    maxScore = User.score;
-  i = 0;
-
-  std::cout << Enemi.lives << ' ' << Enemi.symb << ' '  << Enemi.type
-  << ' ' << Enemi.current_bullet << ' ' << Enemi.bullets << ' '
-  << Enemi.x << ' ' << Enemi.y << ' ' << Enemi.rockets->x << ' ' << Enemi.rockets->y<< std::endl;
-  while (i < 101)
-  {
-    Enemi.makeShooting();
-    std::cout << Enemi.lives << ' ' << Enemi.symb << ' '  << Enemi.type
-    << ' ' << Enemi.current_bullet << ' ' << Enemi.bullets << ' '
-    << Enemi.x << ' ' << Enemi.y << ' ' << Enemi.rockets->x << ' ' << Enemi.rockets->y << ' ' << std::endl;
-    i++;
-  }
-  i = 0;
-
-  while (i < 3)
-  {
-    std::cout << Enemies.group[i].lives << ' ' << Enemies.group[i].symb << ' '  << Enemies.group[i].type
-    << ' ' << Enemies.group[i].current_bullet << ' ' << Enemies.group[i].bullets << ' '
-    << Enemies.group[i].x << ' ' << Enemies.group[i].y << ' ' << Enemies.group[i].rockets->x << ' '
-    << Enemies.group[i].rockets->y << std::endl;
-    i++;
-  }
   int j = 0;
-  while (j < 3)
+
+  while (i < enemy.count)
   {
-    i = 0;
-    while (i < 20)
+    j = 0;
+    while (j < enemy.count)
     {
-      std::cout << Enemies.group[j].lives << ' ' << Enemies.group[j].symb << ' '  << Enemies.group[j].type
-      << ' ' << Enemies.group[j].current_bullet << ' ' << Enemies.group[j].bullets << ' '
-      << Enemies.group[j].x << ' ' << Enemies.group[j].y << ' ' << Enemies.group[j].rockets->x
-      << ' ' << Enemies.group[j].rockets->y << std::endl;
-      i++;
+      enemy.group[i].rockets[j].rocketMoving(enemy.group[i].x, enemy.group[i].y);
+      j++;
     }
-    j++;
+    i++;
   }
-  */
-  return 0;
+}
+
+int enemies_shooting(Player &player, Enemy &enemy, FieldWindow &gameWindow)
+{
+  int i = 0;
+  int j = 0;
+  while (i < 6)
+  {
+    if (enemy.group[i].x > 3)
+      gameWindow.PutChar(enemy.group[i].symb | A_BOLD, enemy.group[i].y, enemy.group[i].x);
+    if (enemy.group[i].rockets[0].x > 3)
+      gameWindow.PutChar(enemy.group[i].rockets[0].symb | A_BOLD, enemy.group[i].rockets[0].y, enemy.group[i].rockets[0].x);
+    else
+    {
+      j = 0;
+      while (j < 6)
+      {
+        enemy.group[j].rockets[0].x = enemy.group[j].x;
+        enemy.group[j].rockets[0].y = enemy.group[j].y;
+        j++;
+      }
+    }
+    if (player.x == enemy.group[i].rockets[j].x && player.y == enemy.group[i].rockets[j].y)
+      player.lives--;
+    if (player.lives == 0)
+    {
+      gameWindow.PutStr("GAME OVER: ", 29, 25);
+      return (0);
+    }
+    if ((player.y == enemy.group[i].y && (player.x == enemy.group[i].x + 1 || player.x == enemy.group[i].x - 1))
+    || ((player.y == enemy.group[i].y + 1 || player.y == enemy.group[i].y - 1) && player.x == enemy.group[i].x))
+      player.lives--;
+    if (player.lives == 0)
+    {
+      gameWindow.PutStr("GAME OVER: ", 29, 25);
+      return (0);
+    }
+    enemy.group[i].rockets[j].x -= 2;
+    enemy.group[i].x -= 1;
+    i++;
+  }
+  return (1);
+}
+
+int	main(void)
+{
+	initscr();
+    FieldWindow gameWindow = FieldWindow(32, 60);
+    curs_set(0);
+    start_color();
+    noecho();
+    Player player("nemesis");
+    player.name = "nemesis";
+    Enemy enemy(6, "zork");
+
+    fill_coords(enemy);
+    Window infoWindow = Window(15, 40, 17, 61);
+    init_info_window(&infoWindow);
+    Window statWindow = Window(16, 40, 0, 61);
+
+    while (true) {
+        init_stat_window(&statWindow, &player);
+        halfdelay(2);
+        gameWindow.GetChar();
+        gameWindow.Clear();
+        gameWindow.DrawBox('*' | A_BOLD, '*' | A_BOLD);
+        gameWindow.drawField();
+        gameWindow.PutChar(player.symb | A_BLINK, player.y, player.x);
+        enemies_shooting(player, enemy, gameWindow);
+        /*if (!enemies_shooting(player, enemy, gameWindow))
+        {
+          player("nemesis");
+          enemy(6, "zork");
+          fill_coords(player, enemy);
+        }*/
+
+        gameWindow.Refresh();
+    }
+    endwin();
+    return 0;
 }
